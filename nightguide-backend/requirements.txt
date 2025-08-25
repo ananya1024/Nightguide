@@ -24,3 +24,6 @@ python-multipart
 ultralytics
 pyyaml
 Pillow
+opencv-python-headless
+scipy
+gunicorn
