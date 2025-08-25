@@ -1,76 +1,45 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from constellation_detector import ConstellationDetector
-import logging
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-app = FastAPI(title="NightGuide API", version="1.0.0")
-
-# Initialize constellation detector (with optional CNN support)
 import os
-cnn_model_path = os.getenv("CNN_MODEL_PATH")
-use_cnn = os.getenv("USE_CNN", "false").lower() == "true"
+import uuid
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
+from starlette.background import BackgroundTask # <-- 1. ADD THIS IMPORT
+import shutil
+from pipeline import run_full_pipeline
 
-detector = ConstellationDetector(use_cnn=use_cnn, cnn_model_path=cnn_model_path)
-
-# CORS for local dev (open for hackathon; tighten later)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI()
+MODEL_PATH = "models/best.pt"
+YAML_PATH = "models/data.yaml"
+TEMP_DIR = "temp_images"
+os.makedirs(TEMP_DIR, exist_ok=True)
 
 @app.post("/upload")
-async def upload(file: UploadFile = File(...)):
-    """Upload and analyze a night sky image for constellation detection"""
-    try:
-        # Validate file type
-        if not file.content_type.startswith('image/'):
-            raise HTTPException(status_code=400, detail="File must be an image")
+async def upload_and_run_pipeline(file: UploadFile = File(...)):
+    unique_id = str(uuid.uuid4())
+    input_filename = f"{unique_id}_{file.filename}"
+    output_filename = f"{unique_id}_processed.jpg"
+    
+    input_path = os.path.join(TEMP_DIR, input_filename)
+    output_path = os.path.join(TEMP_DIR, output_filename)
+    
+    with open(input_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    success = run_full_pipeline(
+        image_path=input_path,
+        model_path=MODEL_PATH,
+        yaml_path=YAML_PATH,
+        output_path=output_path
+    )
+    
+    os.remove(input_path)
+    
+    if not success:
+        return JSONResponse(status_code=500, content={"error": "Failed to process image or find constellations."})
         
-        # Read file content
-        content = await file.read()
-        
-        # Process image
-        result = detector.process_image(content)
-        
-        logger.info(f"Processed image: {file.filename}, detected: {result['constellation']}")
-        
-        return JSONResponse(result)
-        
-    except ValueError as e:
-        logger.error(f"Image processing error: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-@app.get("/")
-def read_root():
-    return {
-        "message": "NightGuide API is running 🚀",
-        "version": "1.0.0",
-        "endpoints": {
-            "upload": "/upload - POST - Upload image for constellation detection",
-            "health": "/health - GET - API health check"
-        }
-    }
+    # --- 2. THIS IS THE CORRECTED RETURN STATEMENT ---
+    cleanup_task = BackgroundTask(os.remove, output_path)
+    return FileResponse(output_path, media_type="image/jpeg", background=cleanup_task)
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "NightGuide API"}
-
-@app.get("/constellations")
-def get_constellations():
-    """Get list of available constellations"""
-    return {
-        "constellations": list(detector.constellations.keys()),
-        "count": len(detector.constellations)
-    }
-
+    return {"status": "ok"}

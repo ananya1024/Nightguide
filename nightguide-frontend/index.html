@@ -10,24 +10,17 @@
     <div id="app-container">
       <div id="background-layer"></div>
       <main>
-        
-        <!-- THIS IS THE NEW LOGO SECTION -->
         <div class="mb-8">
           <img src="/logo.png" alt="Nightguide Logo" class="w-full max-w-lg mx-auto" />
         </div>
-        
-        <!-- We keep the "welcome message" separate from the logo -->
         <p id="welcome-message" class="mb-8">Let's find the constellations in your night sky.</p>
-
         <form id="upload-form" class="mb-6">
           <label for="file-upload" class="cursor-pointer inline-block bg-cyan-500 text-gray-900 font-semibold rounded-md py-3 px-6 text-lg hover:bg-cyan-400 transition-colors">
             Upload a Sky Picture
           </label>
           <input id="file-upload" name="file" type="file" class="hidden" accept="image/*" required>
         </form>
-        <div id="loader" class="loader mx-auto my-8"></div>
-
-        <!-- Results Section -->
+        <div id="loader" class="loader hidden mx-auto my-8"></div>
         <div id="results-section" class="hidden mt-8 text-left">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -36,12 +29,9 @@
             </div>
             <div>
               <h2 class="text-2xl font-bold text-cyan-400 mb-4">Constellations</h2>
-              <canvas id="constellation-canvas" class="rounded-lg border-2 border-cyan-500 w-full"></canvas>
+              <!-- We are back to a simple image tag for the final output -->
+              <img id="constellation-image" src="#" alt="Processed image with constellations" class="rounded-lg border-2 border-cyan-500 w-full" />
             </div>
-          </div>
-          <div class="mt-8 p-6 bg-gray-800/60 rounded-lg border border-gray-700">
-            <h3 class="text-2xl font-bold text-white mb-4">Detected Constellations</h3>
-            <div id="constellation-names" class="text-lg"></div>
           </div>
         </div>
       </main>
