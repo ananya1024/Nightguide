@@ -65,7 +65,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
+    <div className="min-h-screen w-full text-white">
       {/* Header */}
       <div className="text-center py-8">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
@@ -74,7 +74,7 @@ export default function App() {
         <p className="text-gray-400 mt-2">AI-powered constellation identifier</p>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
         {/* Upload Section */}
         <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 mb-6 border border-gray-800">
           <div className="flex flex-col items-center space-y-4">
@@ -139,70 +139,86 @@ export default function App() {
         {/* Results Section */}
         {result && (
           <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Constellation Overlay */}
-              <div>
-                <h3 className="text-xl font-semibold mb-4 text-indigo-300">
-                  Constellation Detection
-                </h3>
-                <ConstellationOverlay
-                  imageSrc={preview}
-                  lines={result.lines || []}
-                  points={result.points || []}
-                  constellation={result.constellation}
-                  description={result.description}
-                />
+            <div className="space-y-6">
+              {/* Top row: Images side by side */}
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl font-semibold mb-4 text-indigo-300">
+                    Original Image
+                  </h3>
+                  <img 
+                    src={preview} 
+                    alt="Original" 
+                    className="w-full h-auto rounded-lg shadow-lg" 
+                    style={{ maxHeight: '500px', objectFit: 'contain' }}
+                  />
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl font-semibold mb-4 text-indigo-300">
+                    Constellation Detection
+                  </h3>
+                  <ConstellationOverlay
+                    imageSrc={preview}
+                    lines={result.lines || []}
+                    points={result.points || []}
+                    constellation={result.constellation}
+                    description={result.description}
+                  />
+                </div>
               </div>
-
-              {/* Results Info */}
-              <div className="space-y-4">
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-cyan-300 mb-2">
-                    Detected Constellation
-                  </h4>
-                  <p className="text-2xl font-bold text-white">
-                    {result.constellation}
-                  </p>
-                  {result.description && (
-                    <p className="text-gray-300 mt-1">{result.description}</p>
-                  )}
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-cyan-300 mb-2">
-                    Analysis Details
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="text-gray-400">Stars Detected:</span> {result.detected_stars || 0}</p>
-                    <p><span className="text-gray-400">Confidence:</span> 
-                      <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                        result.confidence === 'high' ? 'bg-green-600' : 'bg-yellow-600'
-                      }`}>
-                        {result.confidence || 'medium'}
-                      </span>
-                    </p>
-                    <p><span className="text-gray-400">Constellation Lines:</span> {result.lines?.length || 0}</p>
-                    <p><span className="text-gray-400">Named Stars:</span> {result.points?.length || 0}</p>
-                  </div>
-                </div>
-
-                {result.points && result.points.length > 0 && (
+              
+              {/* Bottom row: Results */}
+              <div className="bg-gray-800/50 rounded-lg p-4">
+                <div className="space-y-4">
                   <div className="bg-gray-800/50 rounded-lg p-4">
                     <h4 className="text-lg font-semibold text-cyan-300 mb-2">
-                      Named Stars
+                      Detected Constellation
                     </h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      {result.points.map((point, index) => (
-                        <div key={index} className="flex justify-between">
-                          <span className="text-gray-300">{point.name}</span>
-                          <span className="text-gray-500">
-                            ({Math.round(point.x * 100)}%, {Math.round(point.y * 100)}%)
-                          </span>
-                        </div>
-                      ))}
+                    <p className="text-2xl font-bold text-white">
+                      {result.constellation}
+                    </p>
+                    {result.description && (
+                      <p className="text-gray-300 mt-1">{result.description}</p>
+                    )}
+                  </div>
+
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-semibold text-cyan-300 mb-2">
+                      Analysis Details
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="text-gray-400">Stars Detected:</span> {result.detected_stars || 0}</p>
+                      <p><span className="text-gray-400">Confidence:</span> 
+                        <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                          result.confidence === 'high' ? 'bg-green-600' : 'bg-yellow-600'
+                        }`}>
+                          {result.confidence || 'medium'}
+                        </span>
+                      </p>
+                      <p><span className="text-gray-400">Constellation Lines:</span> {result.lines?.length || 0}</p>
+                      <p><span className="text-gray-400">Named Stars:</span> {result.points?.length || 0}</p>
                     </div>
                   </div>
-                )}
+
+                  {result.points && result.points.length > 0 && (
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <h4 className="text-lg font-semibold text-cyan-300 mb-2">
+                        Named Stars
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        {result.points.map((point, index) => (
+                          <div key={index} className="flex justify-between">
+                            <span className="text-gray-300">{point.name}</span>
+                            <span className="text-gray-500">
+                              ({Math.round(point.x * 100)}%, {Math.round(point.y * 100)}%)
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

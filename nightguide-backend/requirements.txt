@@ -12,3 +12,15 @@ python-dotenv>=1.0.0
 # tensorflow>=2.13.0
 # torch>=2.0.1
 # torchvision>=0.15.2 
+
+torch==2.3.0 --index-url https://download.pytorch.org/whl/cpu
+torchvision==0.18.0 --index-url https://download.pytorch.org/whl/cpu
+Pillow==10.0.1
+numpy==1.26.0
+
+fastapi
+uvicorn
+python-multipart
+ultralytics
+pyyaml
+Pillow
