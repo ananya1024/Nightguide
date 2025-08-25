@@ -28,10 +28,8 @@ const handleFileUpload = (file) => {
   originalImage.src = originalImageUrl;
 
   // 2. Send the image to the backend
-  fetch('/upload', {
-    method: 'POST',
-    body: formData,
-  })
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  fetch(`${apiUrl}/upload`, { method: 'POST', body: formData })
     .then(response => {
       if (!response.ok) {
         // If the server sends back an error, we stop here
