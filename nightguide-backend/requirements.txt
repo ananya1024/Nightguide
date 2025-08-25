@@ -24,6 +24,6 @@ python-multipart
 ultralytics
 pyyaml
 Pillow
-opencv-python-headless
+opencv-python-headless==4.8.0.76
 scipy
 gunicorn
